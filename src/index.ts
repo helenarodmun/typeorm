@@ -10,13 +10,13 @@ AppDataSource.initialize().then(async () => {
 
     // here you can start to work with your database
     //Create new user
-    console.log("Inserting a new user into the database...");
-    const user = new User();
-    user.firstName = "Timber";
-    user.lastName = "Saw";
-    user.age = 25;
-    await AppDataSource.manager.save(user);
-    console.log("Saved a new user with id: " + user.id);
+    // console.log("Inserting a new user into the database...");
+    // const user = new User();
+    // user.firstName = "Helen";
+    // user.lastName = "Fish";
+    // user.age = 25;
+    // await AppDataSource.manager.save(user);
+    // console.log("Saved a new user with id: " + user.id);
 
     console.log("Loading users from the database...");
     const users = await AppDataSource.manager.find(User);
@@ -24,18 +24,57 @@ AppDataSource.initialize().then(async () => {
 
     console.log("Here you can setup and run express / fastify / any other framework.");
     //Create new photo
-    const photo = new Photo();
-    photo.name = "Me and Bears";
-    photo.description = "I am near polar bears";
-    photo.filename = "photo-with-bears.jpg";
-    photo.views = 1;
-    photo.isPublished = true;
+    // const photo = new Photo();
+    // photo.name = "Me and Betty";
+    // photo.description = "I am with my dog";
+    // photo.filename = "photo-with-betty.jpg";
+    // photo.views = 1;
+    // photo.isPublished = true;
 
-    await AppDataSource.manager.save(photo);
-    console.log("Photo has been saved. Photo id is", photo.id);
-
+    //usando EntityManager
+    //await AppDataSource.manager.save(photo);
     //load saved entity
-    const savedPhotos = await AppDataSource.manager.find(Photo)
-    console.log("All photos from the db: ", savedPhotos)
+    // const savedPhotos = await AppDataSource.manager.find(Photo)
+
+    //usando Repository
+    const photoRepository = AppDataSource.getRepository(Photo);
+    // await photoRepository.save(photo);
+    // console.log("Photo has been saved. Photo id is", photo.id);
+
+    //search for records
+    const savedPhotos = await photoRepository.find();
+    console.log("All photos from the db: ", savedPhotos);
+
+    const firstPhoto = await photoRepository.findOneBy({
+        id: 1,
+    })
+    console.log("First photo from the db: ", firstPhoto);
+
+    const meAndBearsPhoto = await photoRepository.findOneBy({
+        name: "Me and Bears",
+    });
+    console.log("Me and Bears photo from the db: ", meAndBearsPhoto);
+
+    const allViewedPhotos = await photoRepository.findBy({ views: 1 })
+    console.log("All viewed photos: ", allViewedPhotos);
+
+    const allPublishedPhotos = await photoRepository.findBy({ isPublished: true })
+    console.log("All published photos: ", allPublishedPhotos);
+
+    const [photos, photosCount] = await photoRepository.findAndCount();
+    console.log("All photos: ", photos);
+    console.log("Photos count: ", photosCount);
+    //update record
+    const photoToUpdate = await photoRepository.findOneBy({
+        id: 1,
+    });
+    photoToUpdate.name = "Me, my friends and polar bears";
+    await photoRepository.save(photoToUpdate);
+    
+    //delete record
+    const photoToRemove = await photoRepository.findOneBy({
+        id: 1,
+    })
+    await photoRepository.remove(photoToRemove)
 
 }).catch(error => console.log(error))
