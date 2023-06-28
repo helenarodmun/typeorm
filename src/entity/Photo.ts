@@ -1,5 +1,6 @@
-import { Entity, Column,  PrimaryGeneratedColumn, OneToOne, Relation } from "typeorm"
+import { Entity, Column,  PrimaryGeneratedColumn, OneToOne, Relation, ManyToOne } from "typeorm"
 import { PhotoMetadata } from "./PhotoMetadata";
+import { Author } from "./Author";
 
 @Entity()
 export class Photo {
@@ -25,4 +26,7 @@ export class Photo {
 
     @OneToOne(() => PhotoMetadata, (photoMetadata) => photoMetadata.photo)
     metadata: Relation<PhotoMetadata>
+
+    @ManyToOne(() => Author, (author) => author.photos)
+    author: Author
 }
