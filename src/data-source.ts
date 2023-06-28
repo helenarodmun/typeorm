@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entity/User";
 import { Photo } from "./entity/Photo";
+import { PhotoMetadata } from "./entity/PhotoMetadata";
 
 export const AppDataSource = new DataSource({
     type: "mariadb",
@@ -12,7 +13,7 @@ export const AppDataSource = new DataSource({
     database: "testorm",
     synchronize: true,//ensures that the entities will be synchronised with the database, each time the application is run.
     logging: false,
-    entities: [User, Photo],
+    entities: [User, Photo, PhotoMetadata],
     migrations: [],
     subscribers: [],
 })
