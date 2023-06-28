@@ -1,0 +1,2 @@
+# typeorm
+practicas con typeorm
