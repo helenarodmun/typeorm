@@ -2,6 +2,7 @@ import { AppDataSource } from "./data-source";
 import { User } from "./entity/User";
 import { Photo } from "./entity/Photo";
 import { PhotoMetadata } from "./entity/PhotoMetadata";
+import { Album } from "./entity/Album";
 
 // to initialize initial connection with the database, register all entities
 // and "synchronize" database schema, call "initialize()" method of a newly created database
@@ -9,6 +10,7 @@ import { PhotoMetadata } from "./entity/PhotoMetadata";
 
 AppDataSource.initialize()
     .then(async () => {
+        console.log("Data Source has been initialized!")
         // here you can start to work with your database
         //Create new user
         // console.log("Inserting a new user into the database...");
@@ -126,5 +128,51 @@ AppDataSource.initialize()
             .createQueryBuilder("photo")
             .innerJoinAndSelect("photo.metadata", "metadata")
             .getMany()
+
+        const album1 = new Album()
+        album1.name = "Bears"
+        await AppDataSource.manager.save(album1)
+
+        const album2 = new Album()
+        album2.name = "Me"
+        await AppDataSource.manager.save(album2)
+
+        // create a few photos
+        const newPhoto = new Photo()
+        photo.name = "Me and Bears"
+        photo.description = "I am near polar bears"
+        photo.filename = "photo-with-bears.jpg"
+        photo.views = 1
+        photo.isPublished = true
+        photo.albums = [album1, album2]
+        await AppDataSource.manager.save(photo)
+
+        // now our photo is saved and albums are attached to it
+        // now lets load them:
+        const loadedPhoto = await AppDataSource.getRepository(Photo).findOne({
+            where: {
+                id: 1,
+            },
+            relations: {
+                albums: true,
+            },
+        })
+
+        //QueryBuilder example
+        const searchPhotos = await AppDataSource.getRepository(Photo)
+            .createQueryBuilder("photo") // first argument is an alias. Alias is what you are selecting - photos. You must specify it.
+            .innerJoinAndSelect("photo.metadata", "metadata")
+            .leftJoinAndSelect("photo.albums", "album")
+            .where("photo.isPublished = true")
+            .andWhere("(photo.name = :photoName OR photo.name = :bearName)")
+            .orderBy("photo.id", "DESC")
+            .skip(5)
+            .take(10)
+            .setParameters({ photoName: "My", bearName: "Mishka" })
+            .getMany()
+
+            console.log(searchPhotos)
     })
-    .catch(error => console.log(error));
+    .catch((err) => {
+        console.error("Error during Data Source initialization", err)
+    })

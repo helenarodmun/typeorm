@@ -4,6 +4,7 @@ import { User } from "./entity/User";
 import { Photo } from "./entity/Photo";
 import { PhotoMetadata } from "./entity/PhotoMetadata";
 import { Author } from "./entity/Author";
+import { Album } from "./entity/Album";
 
 export const AppDataSource = new DataSource({
     type: "mariadb",
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
     database: "testorm",
     synchronize: true,//ensures that the entities will be synchronised with the database, each time the application is run.
     logging: false,
-    entities: [User, Photo, PhotoMetadata, Author],
+    entities: [User, Photo, PhotoMetadata, Author, Album],
     migrations: [],
     subscribers: [],
 })
